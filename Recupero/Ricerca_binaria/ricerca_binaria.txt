@@ -1,0 +1,3 @@
+Ricerca Binaria
+Implementa una funzione che effettua la ricerca binaria in una lista di numeri interni ordinati
+e ritorna True se il numero è all’interno del della lista, altrimenti False.

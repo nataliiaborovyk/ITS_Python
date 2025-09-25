@@ -2,7 +2,7 @@ Cifrario di Cesare
 Il cifrario di Cesare è un antico metodo crittografico che rende alcune informazioni nascoste
 a chi non possiede la chiave per decifrarle.
 Immagina l’alfabeto come una lista ordinata di lettere (puoi importare la lista delle lettere
-dell’alfabeto minuscole scrivendo from string import ascii_lowercase
+dell’alfabeto minuscole scrivendo from string import ascii_lowercase)
 Ogni lettera ha una posizione in questa lista:
 ● a è 1
 ● b è 2

@@ -98,7 +98,7 @@ def printMAT(mat: list[list[int]]) -> None:
         for c in range(len(mat[r])):
 
             # stampa ogni valore della matrice in modo nell'output l'elemento occupi 5 caratteri
-            print(f"{mat[r][c]:<5}", end="")
+            print(f"{mat[r][c]:<3}", end="")
 
             # pertanto, data una riga r, ripetendo questa procedura per tutte le colonne c della riga, 
             # io posso stampare in output tutta una riga della matrice
@@ -123,6 +123,7 @@ if __name__ == '__main__':
 
     # mostriamo in output la matrice
     printMAT(matrice)
+    print(generaMAT(10))
 
             
              

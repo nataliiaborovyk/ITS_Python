@@ -61,14 +61,24 @@ class File(Documento):
     _nomePercorso: str
 
     def __init__(self, nomePercorso:str) -> None:
+        super().__init__("")
         self._nomePercorso = nomePercorso
     
     def leggiTestoDaFile(self):
         with open(self._nomePercorso, "r") as pippo:
-            return pippo.read() #read tutto il file come str, readline(1) ritorna una riga, readlines ritorna una lista dove ogli elemento è una riga
+            self._testo = pippo.read() #read tutto il file come str, readline(1) ritorna una riga, readlines ritorna una lista dove ogli elemento è una riga
+        return self._testo
+
+    def getText(self):
+        return (
+            f"percorso: {self._nomePercorso}\n"
+            f"contenuto: {super().getText()}"
+        )
     
 test: Email = Email("fdkgshdg", "hgfs", "Titolo", "Mio messaggio")
 test.writeToFile("./documento.txt")
 
+
 topolino:File = File("./documento.txt")
 print(topolino.leggiTestoDaFile())
+print(topolino.getText())

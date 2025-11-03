@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% if utente %}
+        <h1>Profilo di {{ utente.nome }}  {{ utente.cognome }}</h1>
+        <p>Username: @{{ utente.username }}</p>
+        <h3>Post scritti da {{ utente.nome }}:</h3>
+        <ul>
+            {% for p in posts %}
+                <li><a href=" {{ url_for('post', id=p.id) }}"> {{ p.title }}</a></li>
+            {% else %}
+                <li>Nessun post disponibile</li>
+            {% endfor %}
+    </ul>
+    <p>
+      <a href="{{ url_for('posts') }}">← Torna ai post</a> |
+      <a href="{{ url_for('home') }}">Home</a>
+    </p>
+  {% else %}
+    <h1>Utente non trovato 😢</h1>
+    <p><a href="{{ url_for('utenti') }}">← Torna a Utenti</a></p>
+  {% endif %}
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    {% if post %}
+    <h1>{{ post.title }}</h1>
+    <p>{{ post.body }}</p>
+
+    {% if autore %}
+      <p><em>Autore:
+        <a href="{{ url_for('profilo', username=autore.username) }}">
+          {{ autore.nome }} {{ autore.cognome }} (@{{ autore.username }})
+        </a></em>
+      </p>
+    {% endif %}
+    <p>
+      <a href="{{ url_for('posts') }}">← Torna ai post</a> |
+      <a href="{{ url_for('home') }}">Home</a>
+    </p>
+  {% else %}
+    <h1>Post non trovato 😢</h1>
+    <p><a href="{{ url_for('posts') }}">← Torna ai post</a></p>
+  {% endif %}
+</body>
+</html>

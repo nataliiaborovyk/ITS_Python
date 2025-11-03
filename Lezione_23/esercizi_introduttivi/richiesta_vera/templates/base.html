@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <nav>
+        <a href="{{ url_for('home') }}"> Home</a>
+        <a href="{{ url_for('benvenuto', name='Nat') }}"> Benvenuto/Nat</a>
+        <a href="{{ url_for('about') }}"> About</a>
+        <a href="{{ url_for('square', n=5) }}"> Square</a>
+        <a href="{{ url_for('sum', a=23, b=73) }}"> Sum</a>
+        <a href="{{ url_for('profilo', username='nat') }}"> Profilo</a>
+        <a href="{{ url_for('utenti') }}"> Utenti</a>
+        <a href="{{ url_for('post', id=1) }}"> Post</a>
+        <a href="{{ url_for('posts') }}"> Posts</a>
+    </nav>
+    <hr>
+</body>
+</html>

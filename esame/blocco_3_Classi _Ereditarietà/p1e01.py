@@ -1,3 +1,36 @@
+'''
+## ### **B3.I.1 — Library Items (base OOP + override)**
+**Task.**
+Progettare una gerarchia di classi per gestire gli oggetti di una biblioteca.
+Ogni oggetto (libro, DVD, ecc.) può essere preso in prestito e restituito.
+Serve anche un metodo per descrivere i dati dell’oggetto.
+---
+### **Classe LibraryItem**
+**Attributi:**
+* `item_id: str` — identificativo univoco dell’oggetto.
+* `title: str` — titolo dell’opera.
+* `available: bool = True` — indica se l’oggetto è disponibile al prestito.
+**Metodi:**
+* `describe() -> str`: restituisce una stringa con ID, titolo 
+e stato (“disponibile” o “non disponibile”).
+* `borrow() -> bool`: se l’oggetto è disponibile, 
+imposta `available=False` e restituisce `True`;
+  altrimenti restituisce `False` senza modificare lo stato.
+* `return_item() -> None`: imposta `available=True` (oggetto restituito).
+---
+### **Classe Book(LibraryItem)**
+**Attributi aggiuntivi:**
+* `author: str` — nome dell’autore.
+**Metodi:**
+* `describe() -> str`: **override** del metodo base.
+  Restituisce una descrizione più completa, includendo l’autore.
+### **Classe Dvd(LibraryItem)**
+**Attributi aggiuntivi:**
+* `duration_min: int` — durata in minuti.
+**Metodi:**
+* `describe() -> str`: **override** del metodo base, include anche la durata.
+'''
+
 class LibraryItem:
     def __init__(self, item_id: str, title: str) -> None:
         self.item_id: str = item_id

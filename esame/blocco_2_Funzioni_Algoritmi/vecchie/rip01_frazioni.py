@@ -69,40 +69,6 @@ l = 2.5/0,   1/2,   2/4,   3/5,   6/9,   4/7,   24/36,   12/36,   40/60,   5/11,
 Sfruttando la funzione semplifica, generare una nuova lista chiamata l_s, contente una versione semplificata delle frazioni della lista l.
 Infine, richiamando la funzione fractionCompare, dimostrare che le funzioni delle lista l e l_s sono equivalenti, ovvero hanno lo stesso valore.
  
-Esercizio 2.
- 
-Scrivere un programma Python che legge in input prima un intero x positivo e poi una sequenza di interi positivi. Se l'utente inserisce il numero 0, allora la sequenza deve terminare.
-
-Per il numero x e per ogni numero della sequenza inserita, effettuare il controllo che il numero inserito sia effettivamente un intero e forzare l'utente ad inserire un numero intero positivo nel caso in cui questa condizione non venga rispettata.
-Trovare una soluzione che eviti di scrivere codice duplicato per effettuare questa serie di controlli.
- 
-Suggerimento: per controllare che un numeri sia intero, usare la funzione is_integer() e isistance().
-
-Determinato il numero x e la sequenza di interi positivi, il programma deve produrre in output:
- 
-
-    stampare la sequenza
-#
-    Il numero occ di occorrenze di x, ovvero  il numero di volte in cui appare x nella sequenza;
-
-    La posizione pos del primo valore uguale a x.
-
-    La somma di tutti i valori diversi da x;
-
-
-Ad esempio, se l'utente inserisce come valore x il numero 3 e poi immette la sequenza: 7; 5; 1; 3; 3; 3; 11; 2; 3; 3; 0
- 
-il programma dovra' scrivere in output:
-
-    stampare in output la sequenza
-
-    Il numero 3 compare 5 volte nella sequenza (attenzione all'output se il numero compare 1 sola volta!)
-
-    Il numero 3 compare per la prima volta in posizione 3 nella sequenza
-
-    La somma dei valori della sequenza diversi da 3 e' 26
-
-
 '''
 
 
@@ -135,7 +101,7 @@ class Frazione:
     def get_numeratore(self) -> int:
         return self.__num
     
-    def get_donominatore(self) -> int:
+    def get_denominatore(self) -> int:
         return self.__denom
 
     def value(self) -> float:
@@ -180,5 +146,35 @@ def mcd(x: int, y:int):
         return 1
     
     
-    
-        
+# 8 C
+
+def semplifica(lista:list[Frazione]) -> list[Frazione]:
+
+    sempl:list[Frazione]= []
+    for el in lista:
+        mcd:int = mcd(el.get_numeratore(), el.get_denominatore())
+        if mcd == 1:
+            sempl.append(el)
+        else:
+            sem_n:int = int(el.get_numeratore()/mcd)
+            sem_d:int = int(el.get_denominatore()/mcd)
+            sem_fr:Frazione = Frazione(sem_n, sem_d)
+            sempl.append(sem_fr)
+    return sempl
+
+
+# 8 D
+
+def fractionCompare(l_or:list[Frazione], l_sem:list[Frazione]) -> str:
+    if len(l_or) != len(l_sem):
+        print("liste di lunghezza diversa")
+    else:
+        for i in range(len(l_or)):
+            print(f"orig:{l_or[i].value()} - semp:{l_sem[i].value()}")
+            
+
+# 8 E
+
+def fraz(l:list[Frazione]) -> list:
+    l_semp:list[Frazione] = semplifica(l)
+    fractionCompare(l, l_semp)

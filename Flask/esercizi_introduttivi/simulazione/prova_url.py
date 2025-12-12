@@ -1,5 +1,5 @@
 from flask import url_for
-from ITS_Python.Lezione_23.esercizi_introduttivi.simulazione_finta.app import app
+from app import app
 
 with app.test_request_context():
     print(url_for('home'))

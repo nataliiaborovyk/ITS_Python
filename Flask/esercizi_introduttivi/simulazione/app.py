@@ -1,4 +1,4 @@
-from flask import Flask, url_for
+from flask import Flask, url_for, jsonify
 
 app = Flask(__name__)
 
@@ -49,25 +49,31 @@ def square(n:int) -> str:
     risultato = n ** 2
     return f"<p>Numero {n} ** 2 = {risultato}</p>"
         
-@app.route('/sum/<int:a>/<int:b>')
+@app.route('/sum/<int:a>/<int:b>', methods=['GET'])
 def sum(a:int, b:int) -> str:
     risultato = a + b
-    return f"<p>Somma di {a} + {b} = {risultato}</p>"
+    #return f"<p>Somma di {a} + {b} = {risultato}</p>"
+    return jsonify(risultato)
 
 
-@app.route('/user/<string:name>/age/<int:age>')
+@app.route('/user/<string:name>/age/<int:age>', methods=['GET'])
 def user(name: str, age: int) -> str:
     url = url_for('user', name=name, age=age)  # → /user/<name>
-    return  f"<h4>Profilo di {name}, age={age}:   {url},  Link: <a href='{url}'>{url}</a></h4>"
+    #return  f"<h4>Profilo di {name}, age={age}:   {url},  Link: <a href='{url}'>{url}</a></h4>"
+    return jsonify({"Name": name, "age":age, "Url": url})
 
 
 @app.route("/utenti")
 def utenti() -> str:
     righe = []
+    utenti:list = []
     for k, v in lista_utenti.items():
         url = url_for("user", name=k, age=v)
-        righe.append(f"<p>Profilo di {k}, age={v}: <a>{url}</a> <p>Link: <a href='{url}'>{url}</a></p>")
-    return "\n".join(righe)
+        #righe.append(f"<p>Profilo di {k}, age={v}: <a>{url}</a> <p>Link: <a href='{url}'>{url}</a></p>")
+        utenti.append({"name":k, "age":v, "link":url})
+    #return "\n".join(righe)
+    return jsonify(utenti)
+    
   
 @app.route("/utenti2")
 def utenti2() -> str:
@@ -82,15 +88,18 @@ def post(id: int) -> str:
     for i in lista_posts:
         if i['id'] == id:
             url = url_for('post', id=id)
-            return (
-                f"<p>ID: {i['id']}</p>"
-                f"<p>Autore: {i['author']}</p>"
-                f"<p>Title: {i['title']}</p>"
-                f"<p>Testo: {i['text']}</p>"
-                f"<p> URL: {url} </p> "
-                f"<p> Link: <a href='{url}'> {url}</a> </p> "
-            )
-    return f"Non esiste il post con id {id} "
+    #         return (
+    #             f"<p>ID: {i['id']}</p>"
+    #             f"<p>Autore: {i['author']}</p>"
+    #             f"<p>Title: {i['title']}</p>"
+    #             f"<p>Testo: {i['text']}</p>"
+    #             f"<p> URL: {url} </p> "
+    #             f"<p> Link: <a href='{url}'> {url}</a> </p> "
+    #         )
+            return jsonify({"ID":i['id'], "autore":i['author'], "Title":i['title'], "Testo": i['text'], "link": url })
+    return jsonify(f"Non esiste post con numero {id}")
+    # return f"Non esiste il post con id {id} "
+
 
 
 @app.route("/posts")
@@ -102,7 +111,7 @@ def posts() -> str:
         url = url_for("post", id=i['id'])
         righe.append(url)
         righe.append("<hr>")
-    return "\n".join(righe)
+    return "\n".join(righe), 200
 
 @app.route("/posts2")
 def posts2() -> str:
@@ -111,3 +120,9 @@ def posts2() -> str:
         righe.append(post(i['id']))
         righe.append("<hr>")
     return "\n".join(righe)
+
+
+
+
+
+

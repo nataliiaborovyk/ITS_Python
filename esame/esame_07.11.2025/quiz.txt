@@ -1,0 +1,107 @@
+Domande e Risposte
+Domanda 6 (0.2 punti)
+Come si definisce una classe in Python?
+ a) object NomeClasse:
+ b) class NomeClasse {
+ c) def class NomeClasse:
+ ✅ d) class NomeClasse: 
+
+Domanda 7 (0.2 punti)
+Come si gestisce un’eccezione in Python?
+ ✅ a) try: … except: 
+ b) try: … rescue:
+ c) try: … handle:
+ d) try: … catch:
+✔️ Corretto. In Python la gestione delle eccezioni si fa con try e except.
+
+Domanda 8 (0.2 punti)
+Quale eccezione viene sollevata quando si accede a una variabile non definita?
+ a) AttributeError
+ ✅ b) NameError 
+ c) ValueError
+ d) TypeError
+
+Domanda 9 (0.2 punti)
+Quale metodo si usa per convertire una stringa in intero?
+ ✅ a) int()
+ b) float()
+ c) str()
+ d) input()
+
+Domanda 10 (0.2 punti)
+Come si definisce un metodo di istanza in una classe?
+ a) def metodo():
+ b) def metodo(this):
+ ✅ c) def metodo(self):
+ d) method metodo(self):
+
+Domanda 11 (0.2 punti)
+Come posso rimuovere il terzo elemento "Bob" dalla lista myList?
+ a) myList.remove(2, "Bob")
+ ✅  b) myList.pop(2)
+ c) myList.pop("Bob") 
+ d) myList.remove(3)
+
+Domanda 12 (0.2 punti)
+Qual è la differenza tra def e lambda?
+ a) Nessuna differenza
+ b) Lambda ha più statements
+ ✅ c) Def definisce funzioni nominate, lambda espressioni anonime 
+ d) Def è anonima, lambda no
+
+Domanda 13 (0.2 punti)
+Cos’è un volume Docker?
+ a) Network
+ ✅ b) Storage persistente
+ c) Imamgine
+ ❌ ) Cantainer
+
+Domanda 14 (0.2 punti)
+Come si concatenano due stringhe in Python?
+ ✅ a) str1 + str2
+ b) str1 & str2
+ c) str1.concat(str2)
+
+Domanda 15 (0.2 punti)
+Come si accede a un attributo di un oggetto?
+ ✅ a) oggetto.attributo 
+ b) oggetto.get(attributo)
+ c) oggetto[attributo]
+ d) oggetto->attributo
+
+Domanda 16 (0.2 punti)
+Quali sono le modalità di apertura dei file in Python?
+ a) Open, close, delete
+ b) Json, csv, xml
+ ✅ c) "r", "w", "a"
+ d) Text, binary, append
+
+Domanda 17 (0.2 punti)
+Come si crea una tupla in Python?
+ a) tupla = [1, 2, 3]
+ b) tupla = {1, 2, 3}
+ ✅ c) tupla = (1, 2, 3) 
+ d) tupla = tuple[1, 2, 3]
+
+Domanda 18 (0.2 punti)
+Come si crea un ciclo che va da 0 a 9?
+ a) for i = 0 in 10: i++
+ ✅ b) for i in range(10): 
+ c) for i in range(9):
+ d) for i in range(7):
+
+Domanda 19 (0.2 punti)
+Come si ottiene la lunghezza di una stringa?
+ ✅ a) len(string)
+ b) string.length()
+ c) stringa.len()
+ d) stringa.size()
+
+
+Domanda 20 (0.2 punti)
+Come si rimuove una chiave da un dizionario?
+ ❌ a) dict.remove('chiave')
+ b) dict.delete('chiave')
+ c) del dict['chiave']
+ ✅ d) dict.del('chiave') 
+

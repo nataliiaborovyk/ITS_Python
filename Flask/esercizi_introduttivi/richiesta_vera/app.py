@@ -1,4 +1,4 @@
-from flask import Flask, url_for, render_template
+from flask import Flask, url_for, render_template, jsonify
 
 
 app = Flask(__name__)
@@ -29,7 +29,7 @@ def about() -> str:
 
 @app.route('/user/<string:name>')
 def benvenuto(name: str) -> str:
-    return render_template('benvenuto.html', name=name)
+    return jsonify({"name" : name})
 
 @app.route('/square/<int:n>')
 def square(n:int) -> str:
@@ -41,7 +41,7 @@ def sum(a:int, b:int) -> str:
     risultato = a + b
     return render_template('sum.html', a=a, b=b, risultato=risultato)
 
-@app.route('/utenti')
+@app.route('/utenti', methods=['GET'])
 def utenti() -> str:
     return render_template('utenti.html', utenti=UTENTI)
 

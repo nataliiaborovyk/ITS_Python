@@ -1,0 +1,115 @@
+response = requests.METODO_HTTP(
+    url,
+    headers=...,
+    params=...,
+    data=...,
+    json=...,
+    timeout=...,
+    auth=...
+)
+
+headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json"
+}
+
+params: i parametri della URL (GET)
+
+requests.get(
+    "http://example.com/animals",
+    params={"type": "dog", "age": 3}
+)
+
+Diventa automaticamente:  /animals?type=dog&age=3
+
+ params = query string,  usato tipicamente con GET
+
+
+
+Il modulo json ha 4 funzioni “base”:
+
+json.dumps(obj) → stringa                   Python → JSON stringa
+
+json.loads(stringa_json) → oggetto Python   JSON stringa → Python
+
+json.dump(obj, file) → file                 Python → scrive JSON dentro un file
+
+json.load(file) → oggetto Python            legge JSON da file → Python
+
+
+
+json.dumps(response.json(), indent=4)
+
+
+response: requests.Response = requests.METODO_HTTP(
+                                                    url,
+                                                    headers=...,
+                                                    params=...,
+                                                    data=...,
+                                                    json=...,
+                                                    timeout=...,
+                                                    auth=...
+                                                )
+
+Attributi e metodi piu usati di response:
+
+    response.status_code
+
+    response.text
+
+    response.json()  --> json.laods(stringa_body)   lato client
+                            prende il body, verifica che sia JSON, fa parsing, restituisce un oggetto Python
+    response.headers
+
+    response.url
+
+    response.ok
+
+    response.request
+
+    response.request.method
+
+    response.request.url
+
+    response.request.headers
+
+
+Attributi e metodi piu usati di request:
+
+    request.method
+
+    request.args
+
+    request.get_json()  --> json.laods(stringa_body)   lato server
+                            prende il body, verifica che sia JSON, fa parsing, restituisce un oggetto Python
+
+    request.headers
+
+    request.url
+
+    request.path
+
+    request.form
+
+    request.data
+
+    request.files
+
+    request.remote_addr
+
+
+
+from flask import jsonify
+
+return jsonify(dati), 200   --> jsonify = converte in JSON + crea oggetto Response + imposta header corretti.
+
+==
+
+from flask import Response
+import json
+
+return Response(
+    json.dumps(dati),
+    status=200,
+    mimetype="application/json"
+)

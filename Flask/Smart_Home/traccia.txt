@@ -1,0 +1,381 @@
+Sistema di Gestione Smart Home (IoT Hub)
+
+Classe SmartDevice (astratta)
+
+La classe SmartDevice rappresenta un generico dispositivo connesso generico gestito dal sistema. È una classe astratta e non può essere istanziata direttamente.
+
+Ogni dispositivo ha:
+
+    serial_number: str
+    Identificativo univoco del dispositivo espresso come una stringa (es., "SN-10293-X"),
+
+    brand: str
+    La marca del dispositivo rappresentata come una stringa (es. "Nest"),
+
+    room: str
+    Nome della stanza in cui è collocato il dispositivo ("Living Room"),
+
+    installation_year: int
+    Anno di installazione del dispositivo, di tipo intero,
+
+    status: str
+    Lo stato attuale del dispositivo, espresso come una stringa, con valori possibili (a scelta, ma ad esempio):
+
+        "online" (funzionante e connesso),
+
+        "offline" (disconnesso),
+
+        "updating" (aggiornamento firmware in corso),
+
+        "error" (malfunzionamento),
+
+Metodi
+
+    device_type() -> str   metodo astratto
+    Deve essere implementato nelle sottoclassi per restituire il tipo del dispositivo (es. "bulb", "camera").
+
+    energy_consumption() -> float | int   metodo astratto
+    Deve essere implementato nelle sottoclassi e restituisce il consumo medio di energia in Watt del dispositivo (può essere un intero o un float).
+
+    connection_quality() -> int   metodo astratto
+    Deve essere implementato nelle sottoclassi e restituire un indicatore (ad esempio un numero intero) che descriva la qualità della connessione richiesta dal dispositivo (intero da 1 a 10).
+
+    info() -> dict[str, float | int | str]: 
+    Restituisce un dizionario con le informazioni principali del dispositivo, ad esempio:
+
+    {
+        "serial_number": ...,
+        "brand": ...,
+        "room": ...,
+        "installation_year": ...,
+        "status": ...,
+        # più eventuali campi specifici delle sottoclassi
+    }
+
+    diagnostici_time(factor: float = 1.0) -> float
+    Calcola un tempo stimato per eseguire una diagnostica completa, sulla base di:
+
+        energy_consumption(),
+
+        connection_quality(),
+
+        il fattore moltiplicativo factor (float, default 1.0).
+
+    La formula è energy_consumption() * factor + connection_quality()*10 e restituisce, in secondi, il tempo stimato per eseguire una diagnostica completa (valore intero).
+
+Classe SmartBulb
+
+La classe SmartBulb rappresenta una lampadina intelligente ed eredita da SmartDevice.
+Attributi aggiuntivi
+
+    brightness_lumens: int 
+    un intero che quantifica la luminosità della lampadina intelligente espressa in lumen (es. 800 o 1200).
+
+    color_capability -> bool 
+    un booleano che indica se la lampadina supporta la modalità RGB (vero se supportata, falso altrimenti).
+
+Metodi
+
+    device_type() -> str
+    restituisce la stringa "bulb".
+
+    energy_consumption() -> float | int
+    restituisce il consumo medio di energia in Watt (float o int). Per questa tipologia di dispositivo il consumo è basso, tipicamente 9 o 15 Watt.
+
+    connection_quality() -> int
+    restituisce un indicatore (ad esempio un numero intero) che descriva la qualità della connessione richiesta dal dispositivo (intero da 1 a 10), tipicamente un valore basso/medio (es. tra 2 e 4), poiché le lampadine richiedono poca banda..
+
+    info() -> dict[str, float | int | str]
+    estende il metodo della superclasse includendo anche brightness_lumens e color_capability.
+
+Classe SecurityCamera
+
+La classe SecurityCamera rappresenta una telecamera di sicurezza ed eredita da SmartDevice.
+Attributi aggiuntivi
+
+    resolution: str
+    Rappresenta la risoluzione della telecamera di sicurezza (es. "1080p", "4K").
+
+    night_vision: bool
+    Indica se la videocamera dispone di visione notturna (vero se dispone di visione notturna, falso altrimenti).
+
+Metodi
+
+    device_type() -> str
+    Restituisce la stringa "camera".
+
+    energy_consumption() -> float | int
+    Restituisce il consumo medio di energia in Watt (float o int). I modelli di dispositivi motorizzati hanno tipicamente un consumo più elevato, quindi verrà restituito un valore più alto (es. 50 Watt).
+
+    connection_quality() -> int
+    Restituisce un indicatore (ad esempio un numero intero) che descriva la qualità della connessione richiesta dal dispositivo (intero da 1 a 10). Per questo tipo di dispositivo sarà un valore alto (es. tra 8 e 10), poiché lo streaming video richiede tipicamente molta banda.
+
+    info(): estende il metodo della superclasse includendo anche resolution e night_vision.
+
+Classe IoTHub
+
+La classe IoTHub rappresenta il sistema di gestione di dispositivi intelligenti, cioè il database principale del sistema.
+Attributi
+
+    devices: dizionario che associa a ogni identificativo (serial_number) l’oggetto SmartDevice corrispondente:
+
+    {
+        "SN-101": <SmartBulb ...>,
+        "SN-10293-X": <SecurityCamera ...>,
+        ...
+    }
+
+Metodi
+
+    add(device: SmartDevice) -> bool:
+    Aggiunge un dispositivo al sistema. 
+    Restituisce True se l’inserimento va a buon fine, False se il numero seriale è già presente nel sistema.
+
+    get(serial_number: str) -> SmartDevice | None : 
+    Restituisce l’oggetto SmartDevice corrispondente all’ID specificato oppure None se non esiste.
+
+    update(serial_number: str, new_device: SmartDevice) -> None:
+    Sostituisce completamente il dispositivo con numero seriale serial_number con new_device (per simulare un PUT).
+
+    patch_status(serial_number: str, new_status: str) -> None:
+    Aggiorna solo lo stato (status) del dispositivo con numero seriale serial_number (per simulare un PATCH).
+
+    delete(serial_number: str) -> bool:
+    Rimuove il dispositivo con numero seriale serial_number dal dizionario.
+    Restituisce True se l’eliminazione è andata a buon fine, False se il dispositivo non esiste.
+
+    list_all() -> list[dict[str, float | int | str]] : 
+    restituisce una lista di tutte le info() dei dispositivi presenti nel sistema
+
+Nel codice principale dovrà essere creato un sistema di gestione dei dispositivi intelligenti (IoTHub) e dovranno essere inizializzati almeno due dispositivi, uno di tipo SmartBulb e uno di tipo SecurityCamera.
+Applicazione Flask
+
+Crea un’applicazione Flask che espone diverse route per gestire i dispositivi presenti nel sistema. Le funzioni delle route devono restituire oggetti JSON.
+
+Dovrai usare tutti i metodi HTTP principali:
+
+    GET (lettura),
+
+    POST (creazione),
+
+    PUT (sostituzione totale),
+
+    PATCH (aggiornamento parziale),
+
+    DELETE (cancellazione).
+
+Route GET
+GET /
+
+Restituisce un JSON con:
+
+    una breve descrizione del servizio, ad esempio: "Smart Home Hub API";
+
+    link testuali che indicano le altre route attualmente disponibili, generati dinamicamente con url_for(), ad esempio:
+
+        /devices,
+
+        /devices/SN-101,
+
+        /devices/SN-101/diagnostics/1.0
+
+Il JSON potrebbe avere una struttura tipo:
+
+{
+    "message": "Smart Home Hub API",
+    "links": {
+        "device_list": /devices,
+        "device_sample": /devices/SN-101,
+        "estimate_sample": /devices/SN-101/diagnostic/1.0)
+    }
+}
+
+GET /devices
+
+Restituisce un JSON con l'elenco di tutti i veicoli presenti nel sistema.
+Ogni elemento può essere:
+
+    una stringa descrittiva,
+    ad esempio "SN-101 - Bulb - Nest (status: received)",
+
+    oppure
+
+    un dizionario con i campi principali (quelli restituiti da info()).
+
+La scelta è libera, ma deve essere coerente in tutto il programma.
+GET /devices/<serial_number>
+
+Restituisce un JSON con i dettagli del dispositivo specificato.
+
+Se il veicolo non è presente nel sistema, restituire un JSON di errore (es. {"error": "device not found"}) con status code 404.
+GET /devices/<serial_number>/diagnostic/<factor>
+
+Restituisce un JSON con il tempo stimato per una diagnostica completa del dispositivo, utilizzando il metodo diagnostics_time(factor: float).
+
+Esempio di output:
+
+{
+  "id": "SN-101",
+  "device_type": "bulb"
+  "factor": 1.0,
+  "diagnostic_seconds": 45
+}
+
+Se il dispositivo non esiste, si ottiene un errore 404.
+
+Il parametro factor può essere letto dall'URL e convertito in float (con un default di 1.0 se vuoi renderlo opzionale).
+Route POST
+POST /devices
+
+Permette di aggiungere un nuovo veicolo al sistema.
+
+Il body della richiesta deve essere JSON, letto con request.get_json().
+Deve contenere almeno:
+
+    type: "bulb" o "camera",
+
+    serial_number, brand, room, installation_year, status,
+
+    più i campi specifici del tipo (es. per camera: resolution, night_vision).
+
+Esempio di JSON per una telecamera intelligente:
+
+{
+  "type": "camera",
+  "id": "SN-3e67",
+  "brand": "Philips",
+  "room": "Living Room",
+  "installation_year": 2022,
+  "status": "online",
+  "resolution": 3
+  "night_vision": true
+}
+
+La funzione della route deve:
+
+    validare il JSON (campi obbligatori, tipo corretto),
+
+    creare l’istanza corretta (SmartBulb o SecurityCamera),
+
+    aggiungerla al centro con iot_hub.add(device),
+
+    restituire un JSON di conferma (es. con info()) e status code 201,
+    oppure un JSON di errore con status code 400 in caso di problemi (es. campi mancanti, tipo non riconosciuto).
+
+Route PUT
+PUT /devices/<serial_number>
+
+Sostituisce completamente le informazioni di un dispositivo esistente con quelle fornite nel body JSON (stesso formato del POST /devices).
+
+Comportamento tipico:
+
+    Se il veicolo esiste → viene rimpiazzato (aggiornato completamente).
+
+    Se non esiste → puoi scegliere se:
+
+        creare un nuovo veicolo con quell’plate id, oppure
+
+        restituire un errore 404.
+
+Route PATCH
+PATCH /devices/<serial_number>/status
+
+Aggiorna solo lo stato (status) del dispositivo specificato.
+
+Body JSON di esempio:
+
+{
+  "status": "mantainance"
+}
+
+La funzione deve:
+
+    verificare che il dispositivo esista,
+
+    leggere il nuovo stato dal JSON,
+
+    chiamare iot_hub.patch_status(serial_number, new_status),
+
+    restituire il dispositivo aggiornato (via info()) o un messaggio di conferma.
+
+In caso di dispositivo inesistente → errore 404.
+Route DELETE
+DELETE /devices/<serial_number>
+
+Rimuove un dispositivo dal sistema.
+
+Comportamento:
+
+    Se il dispositivo esiste → viene eliminato e si restituisce un JSON di conferma (es. {"deleted": true, "serial_number": "SN-34567"}).
+
+    Se non esiste → restituire un JSON di errore con status code 404.
+
+Struttura del progetto
+
+Il progetto può essere organizzato in questo modo:
+
+    main.py
+    Contiene:
+
+        le classi SmartDevice, SmartBulb, SecurityCamera, IoTHub,
+
+        l’istanza globale di IoTHub e i dispositivi di esempio,
+
+        l’applicazione Flask con tutte le route definite sopra.
+
+    test_api.py
+    Contiene i test che usano requests per chiamare la tua API.
+
+Test automatici con requests
+Scrivi un file di test che:
+
+    Imposta gli header per lavorare con JSON, ad esempio:
+
+    headers = {
+        "Content-type": "application/json",
+        "Accept": "application/json"
+    }
+
+    Esegue almeno le seguenti operazioni, usando requests:
+
+        GET / e stampa / verifica il contenuto della risposta;
+
+        GET /devices e controlla che la lista non sia vuota;
+
+        POST /devices per aggiungere un nuovo dispositivo;
+
+        GET /devices/<serial_number> per verificare che sia stato creato il nuovo dispositivo nel sistema;
+
+        PATCH /devices/<serial_number>/status per aggiornare lo stato;
+
+        PUT /devices/<serial_number> per sostituire le info del dispositivo;
+
+        DELETE /devices/<serial_number> per eliminarlo;
+
+        GET /devices/<serial_number> per verificare che non esista più (status 404).
+
+    Come minimo, i test devono stampare le risposte.
+
+Esempio minimale di struttura (non il codice completo):
+
+ 
+
+import requests
+import json
+
+BASE_URL = "http://localhost:5000"
+
+if __name__ == "__main__":
+    headers = {
+        "Content-type": "application/json",
+        "Accept": "application/json"
+    }
+
+    # Esempio: test su GET /
+    response = requests.get(f"{BASE_URL}/", headers=headers)
+    print("GET /", response.status_code, response.json())
+
+    # ... altri test per POST, PUT, PATCH, DELETE ...
+
+
+Prima di eseguire i test, il server Flask deve essere in esecuzione (ad esempio con python main.py o flask --app main run).

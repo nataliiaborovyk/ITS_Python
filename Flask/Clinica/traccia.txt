@@ -1,0 +1,144 @@
+Esercizio: Sistema di Gestione Prenotazioni Clinica (metodi HTTP + test)
+Completion requirements
+
+In questo esercizio dovrai scrivere il codice per un sistema che funge da “Hub” per la gestione delle prenotazioni di una clinica, che espone alcune informazioni e funzionalità tramite un’applicazione Flask. L’obiettivo è sperimentare metodi HTTP (POST, PUT, PATCH, DELETE) e test con requests.
+
+Classe Booking (astratta)
+
+La classe Booking rappresenta una generica prenotazione gestita dal sistema. È una classe astratta e non può essere istanziata direttamente.
+Ogni prenotazione ha:
+
+    booking_id: str
+    Identificativo univoco della prenotazione espresso come stringa (es. "BK-10293-X")
+    patient_name: str
+    Nome del paziente (es. "Mario Rossi")
+    doctor: str
+    Nome del medico/ambulatorio di riferimento (es. "Dr. Bianchi")
+    department: str
+    Reparto/area della clinica (es. "Cardiologia", "Radiologia")
+    date: str
+    Data dell’appuntamento (stringa, es. "2026-02-10" in formato ISO YYYY-MM-DD)
+    time: str
+    Orario dell’appuntamento (stringa, es. "14:30" in formato HH:MM)
+    status: str
+    Stato attuale della prenotazione, espresso come stringa, con valori possibili (a scelta, ma ad esempio):
+        "scheduled" (prenotata)
+        "checked_in" (paziente arrivato)
+        "completed" (completata)
+        "canceled" (annullata)
+        "no_show" (non presentato)
+
+Metodi
+Metodi astratti
+
+    booking_type() -> str (metodo astratto)
+    Deve essere implementato nelle sottoclassi per restituire il tipo di prenotazione (es. "visit", "exam").
+    base_duration() -> int (metodo astratto)
+    Deve essere implementato nelle sottoclassi e restituisce la durata standard della prenotazione in minuti (intero).
+    priority_level() -> int (metodo astratto)
+    Deve essere implementato nelle sottoclassi e restituire un indicatore (numero intero) che descrive la priorità della prenotazione (intero da 1 a 10).
+
+Metodi concreti
+
+    info() -> dict[str, int | str | bool | float]
+    Restituisce un dizionario con le informazioni principali della prenotazione, ad esempio:
+
+    {
+      "booking_id": ...,
+      "patient_name": ...,
+      "doctor": ...,
+      "department": ...,
+      "date": ...,
+      "time": ...,
+      "status": ...,
+      # più eventuali campi specifici delle sottoclassi
+    }
+
+    estimated_wait(factor: float = 1.0) -> int
+    Calcola un’attesa stimata (in minuti) prima dell’inizio, sulla base di:
+        base_duration()
+        priority_level()
+        il fattore moltiplicativo factor (float, default 1.0)
+    Formula:
+
+    base_duration() * factor + priority_level() * 5
+
+    Restituisce, in minuti, l’attesa stimata (intero).
+
+Classe MedicalVisit
+
+La classe MedicalVisit rappresenta una visita medica ed eredita da Booking.
+Attributi aggiuntivi
+
+    visit_reason: str
+    Motivo della visita (es. "Controllo annuale", "Dolore toracico")
+    first_time: bool
+    Booleano che indica se è la prima visita del paziente con quel medico/reparto (true/false).
+
+Metodi
+
+    booking_type() -> str: restituisce "visit".
+    base_duration() -> int: restituisce la durata standard della visita in minuti (es. 20 o 30).
+    priority_level() -> int: restituisce un indicatore 1–10, tipicamente medio (es. 4–7). Esempio:
+
+    def priority_level(self) -> int:
+            # Semplice euristica: se motivo contiene parole "urgenti" alza priorità
+            reason = (self.visit_reason or "").lower()
+            keywords = ["urgente", "dolore", "acuto", "svenimento"]
+            for k in keywords:
+                if k in reason:
+                    return 7
+            return 5
+
+    info() -> dict[...]: estende info() includendo anche visit_reason e first_time.
+
+Classe DiagnosticExam
+
+La classe DiagnosticExam rappresenta un esame diagnostico ed eredita da Booking.
+Attributi aggiuntivi
+
+    exam_type: str
+    Tipo di esame (es. "ECG", "RX", "RMN")
+    requires_fasting: bool
+    Indica se l’esame richiede digiuno (true/false).
+
+Metodi
+
+    booking_type() -> str: restituisce "exam".
+    base_duration() -> int: restituisce la durata standard dell’esame in minuti (es. 15, 30, 60).
+    priority_level() -> int: restituisce un indicatore 1–10, tipicamente alto (es. 7–10). Esempio:
+
+    def priority_level(self) -> int:
+            # Semplice euristica: RMN/TAC spesso più "critiche" o più impegnative
+            et = (self.exam_type or "").strip().lower()
+            if et in ["rmn", "mri", "tac", "ct"]:
+                return 8
+            return 7
+
+    info() -> dict[...]: estende info() includendo anche exam_type e requires_fasting.
+
+Classe ClinicHub
+
+La classe ClinicHub rappresenta il sistema di gestione delle prenotazioni (il “database” in memoria).
+Attributi
+
+    bookings: dizionario che associa a ogni identificativo (booking_id) l’oggetto Booking corrispondente:
+
+    {
+      "BK-101": <MedicalVisit ...>,
+      "BK-10293-X": <DiagnosticExam ...>,
+      ...
+    }
+
+Metodi
+
+    add(booking: Booking) -> bool: aggiunge una prenotazione. True se ok, False se booking_id già presente.
+    get(booking_id: str) -> Booking | None: restituisce la prenotazione o None.
+    update(booking_id: str, new_booking: Booking) -> None: sostituisce completamente (PUT).
+    patch_status(booking_id: str, new_status: str) -> None: aggiorna solo lo stato (PATCH).
+    delete(booking_id: str) -> bool: rimuove la prenotazione. True se ok, False se non esiste.
+    list_all() -> list[dict[str, int | str | bool | float]]: lista di tutte le info().
+
+Inizializzazione (codice principale)
+
+Nel codice principale dovrà essere creato un sistema di gestione delle prenotazioni (ClinicHub) e dovranno essere inizializzate almeno due prenotazioni, una di tipo MedicalVisit e una di tipo DiagnosticExam.

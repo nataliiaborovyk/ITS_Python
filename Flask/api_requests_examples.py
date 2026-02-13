@@ -30,6 +30,11 @@ if __name__ == "__main__":
 
     print("Risposta POST:", response_post.json())
 
+
+
+
+
+
     # CON DUMPS
     response_post_dumps = requests.post(
         url="http://localhost:5000/api/utenti",  # esempio di endpoint

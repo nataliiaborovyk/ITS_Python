@@ -1,0 +1,367 @@
+Centro di Assistenza per Dispositivi Elettronici
+Classe Device (astratta)
+
+La classe Device rappresenta un dispositivo elettronico generico preso in carico dal centro di assistenza. È una classe astratta e non può essere istanziata direttamente.
+
+Ogni dispositivo ha:
+
+    un identificativo id di tipo stringa (es. "d1", "d2"),
+
+    un modello model di tipo stringa (es. "iPhone 13", "ThinkPad X1"),
+
+    un nome cliente customer_name di tipo stringa,
+
+    un anno di acquisto purchase_year di tipo intero,
+
+    uno stato della riparazione status di tipo stringa, con valori possibili (a scelta, ma ad esempio):
+
+        "received" (ricevuto),
+
+        "diagnosing" (in diagnosi),
+
+        "repairing" (in riparazione),
+
+        "ready" (pronto per il ritiro),
+
+        "delivered" (consegnato al cliente).
+
+Metodi
+
+    device_type(): metodo astratto
+    Deve essere implementato nelle sottoclassi per restituire il tipo di dispositivo (es. "smartphone", "laptop").
+
+    base_diagnosis_time(): metodo astratto
+    Deve essere implementato nelle sottoclassi e deve restituire il tempo base di diagnosi in minuti (int).
+
+    repair_complexity(): metodo astratto
+    Deve essere implementato nelle sottoclassi e restituire un indicatore (ad esempio un numero intero) che descrive la complessità media di riparazione di quel tipo di dispositivo.
+
+    info(): 
+    Restituisce un dizionario con le informazioni principali del dispositivo, ad esempio:
+
+    {
+        "id": ...,
+        "device_type": ...,
+        "model": ...,
+        "customer_name": ...,
+        "purchase_year": ...,
+        "status": ...,
+        # più eventuali campi specifici delle sottoclassi
+    }
+
+    estimated_total_time(factor: float = 1.0):
+    Calcola un tempo stimato di lavorazione (diagnosi + riparazione) sulla base di:
+
+        base_diagnosis_time(),
+
+        repair_complexity(),
+
+        fattore di carico factor (float, default 1.0).
+
+    La formula è base_diagnosis_time() * factor + repair_complexity() * 30 e deve restituire un intero (minuti).
+
+Classe Smartphone
+
+La classe Smartphone rappresenta uno smartphone e eredita da Device.
+Attributi aggiuntivi
+
+    has_protective_case: bool che indica se il dispositivo è arrivato con una cover protettiva,
+
+    storage_gb: intero che indica quanti GB di memoria ha lo smartphone.
+
+Metodi
+
+    device_type(): restituisce la stringa "smartphone".
+
+    base_diagnosis_time(): restituisce il tempo base di diagnosi in minuti (es. 20).
+
+    repair_complexity(): restituisce un intero che rappresenta la complessità (es. 2 o 3).
+
+    info(): estende il metodo della superclasse includendo anche has_protective_case e storage_gb.
+
+Classe Laptop
+
+La classe Laptop rappresenta un laptop e eredita da Device.
+Attributi aggiuntivi
+
+    has_dedicated_gpu: bool che indica se il laptop ha una scheda grafica dedicata,
+
+    screen_size_inches: float con la dimensione dello schermo in pollici.
+
+Metodi
+
+    device_type(): restituisce la stringa "laptop".
+
+    base_diagnosis_time(): restituisce il tempo base di diagnosi in minuti (es. 40).
+
+    repair_complexity(): restituisce un intero (magari più alto rispetto allo smartphone).
+
+    info(): estende il metodo della superclasse includendo anche has_dedicated_gpu e screen_size_inches.
+
+Classe ServiceCenter
+
+La classe ServiceCenter rappresenta il centro di assistenza, cioè il contenitore principale del sistema.
+Attributi
+
+    devices: dizionario che associa a ogni identificativo (id) l’oggetto Device corrispondente:
+
+    {
+        "d1": <Smartphone ...>,
+        "d2": <Laptop ...>,
+        ...
+    }
+
+Metodi
+
+    add(device): aggiunge un dispositivo al centro.
+    Restituisce True se l’inserimento va a buon fine, False se l’id esiste già.
+
+    get(device_id): restituisce l’oggetto Device corrispondente all’ID specificato oppure None se non esiste.
+
+    update(device_id, new_device): sostituisce completamente il dispositivo con id device_id con new_device (per simulare un PUT).
+
+    patch_status(device_id, new_status): aggiorna solo lo stato (status) del dispositivo specificato (per simulare un PATCH).
+
+    delete(device_id): rimuove il dispositivo dal dizionario.
+    Restituisce True se l’eliminazione è andata a buon fine, False se il dispositivo non esiste.
+
+    list_all(): restituisce una lista di tutti i dispositivi presenti nel centro (o direttamente le loro info()).
+
+Nel codice principale dovrà essere creato un centro di assistenza e dovranno essere inizializzati almeno due dispositivi, uno di tipo Smartphone e uno di tipo Laptop.
+Applicazione Flask
+
+Crea un’applicazione Flask che espone diverse route per gestire i dispositivi del centro. Le funzioni delle route devono restituire oggetti JSON.
+
+Dovrai usare tutti i metodi HTTP principali:
+
+    GET (lettura),
+
+    POST (creazione),
+
+    PUT (sostituzione totale),
+
+    PATCH (aggiornamento parziale),
+
+    DELETE (cancellazione).
+
+Route GET
+GET /
+
+Restituisce un JSON con:
+
+    una breve descrizione del servizio, ad esempio: "Welcome to Service Center API";
+
+    alcuni link testuali che indicano le altre route disponibili, generati dinamicamente con url_for(), ad esempio:
+
+        /devices,
+
+        /devices/d1,
+
+        /devices/d1/estimate/1.5
+
+Il JSON potrebbe avere una struttura tipo:
+
+{
+    "message": "Welcome to Service Center API",
+    "links": {
+        "list_devices": /devices,
+        "sample_device": /devices/d1,
+        "sample_estimate": /devices/d1/estimate/1.5)
+    }
+}
+
+GET /devices
+
+Restituisce un JSON con la lista di tutti i dispositivi presenti nel centro.
+Ogni elemento può essere:
+
+    una stringa descrittiva,
+    ad esempio "d1 - smartphone - iPhone 13 (status: received)",
+
+    oppure
+
+    un dizionario con i campi principali (quelli restituiti da info()).
+
+La scelta è libera, ma deve essere coerente in tutto il programma.
+
+
+GET /devices/<device_id>
+
+Restituisce un JSON con i dettagli del dispositivo specificato.
+
+Se il dispositivo non esiste, restituire un JSON di errore (es. {"error": "Device not found"}) con status code 404.
+
+
+GET /devices/<device_id>/estimate/<factor>
+
+Restituisce un JSON con il tempo stimato totale per la lavorazione del dispositivo, utilizzando il metodo estimated_total_time(factor).
+
+Esempio di output:
+{
+  "id": "d1",
+  "device_type": "smartphone",
+  "factor": 1.5,
+  "estimated_total_minutes": 120
+}
+
+Se il dispositivo non esiste, tornare un errore 404.
+
+Il parametro factor può essere letto dalla URL e convertito in float (con un default di 1.0 se vuoi renderlo opzionale).
+
+
+Route POST
+POST /devices
+
+Permette di aggiungere un nuovo dispositivo.
+
+Il body della richiesta deve essere JSON, letto con request.get_json().
+Deve contenere almeno:
+
+    type: "smartphone" o "laptop",
+
+    id, model, customer_name, purchase_year, status,
+
+    più i campi specifici del tipo (es. per smartphone: has_protective_case, storage_gb).
+
+Esempio di JSON per uno smartphone:
+
+{
+  "type": "smartphone",
+  "id": "d3",
+  "model": "Galaxy S21",
+  "customer_name": "Mario Rossi",
+  "purchase_year": 2021,
+  "status": "received",
+  "has_protective_case": true,
+  "storage_gb": 128
+}
+
+La funzione della route deve:
+
+    validare il JSON (campi obbligatori, tipo corretto),
+
+    creare l’istanza corretta (Smartphone o Laptop),
+
+    aggiungerla al centro con service_center.add(device),
+
+    restituire un JSON di conferma (es. con info()) e status code 201,
+    oppure un JSON di errore con status code 400 in caso di problemi (es. campi mancanti, tipo non riconosciuto).
+
+Route PUT
+PUT /devices/<device_id>
+
+Sostituisce completamente le informazioni di un dispositivo esistente con quelle fornite nel body JSON (stesso formato del POST /devices).
+
+Comportamento tipico:
+
+    Se il dispositivo esiste → viene rimpiazzato (aggiornato completamente).
+
+    Se non esiste → puoi scegliere se:
+
+        creare un nuovo dispositivo con quell’id, oppure
+
+        restituire un errore 404.
+
+Route PATCH
+PATCH /devices/<device_id>/status
+
+Aggiorna solo lo stato (status) del dispositivo specificato.
+
+Body JSON di esempio:
+
+{
+  "status": "repairing"
+}
+
+La funzione deve:
+
+    verificare che il dispositivo esista,
+
+    leggere il nuovo stato dal JSON,
+
+    chiamare service_center.patch_status(device_id, new_status),
+
+    restituire il dispositivo aggiornato (via info()) o un messaggio di conferma.
+
+In caso di dispositivo inesistente → errore 404.
+Route DELETE
+DELETE /devices/<device_id>
+
+Rimuove un dispositivo dal centro di assistenza.
+
+Comportamento:
+
+    Se il dispositivo esiste → viene eliminato e si restituisce un JSON di conferma (es. {"deleted": true, "id": "d2"}).
+
+    Se non esiste → restituire un JSON di errore con status code 404.
+
+Struttura del progetto
+
+Il progetto può essere organizzato in questo modo:
+
+    main.py
+    Contiene:
+
+        le classi Device, Smartphone, Laptop, ServiceCenter,
+
+        l’istanza globale di ServiceCenter e i dispositivi di esempio,
+
+        l’applicazione Flask con tut
+        te le route definite sopra.
+
+    test_api.py
+    Contiene i test che usano requests per chiamare la tua API.
+
+Test automatici con requests
+Scrivi un file di test che:
+
+    Imposta gli header per lavorare con JSON, ad esempio:
+
+    headers = {
+        "Content-type": "application/json",
+        "Accept": "application/json"
+    }
+
+    Esegue almeno le seguenti operazioni, usando requests:
+
+        GET / e stampa / verifica il contenuto della risposta;
+
+        GET /devices e controlla che la lista non sia vuota;
+
+        POST /devices per aggiungere un nuovo dispositivo;
+
+        GET /devices/<nuovo_id> per verificare che sia stato creato;
+
+        PATCH /devices/<nuovo_id>/status per aggiornare lo stato;
+
+        PUT /devices/<nuovo_id> per sostituire le info del dispositivo;
+
+        DELETE /devices/<nuovo_id> per eliminarlo;
+
+        GET /devices/<nuovo_id> per verificare che non esista più (status 404).
+
+    Come minimo, i test devono stampare le risposte.
+
+Esempio minimale di struttura (non il codice completo):
+
+ 
+
+import requests
+import json
+
+BASE_URL = "http://localhost:5000"
+
+if __name__ == "__main__":
+    headers = {
+        "Content-type": "application/json",
+        "Accept": "application/json"
+    }
+
+    # Esempio: test su GET /
+    response = requests.get(f"{BASE_URL}/", headers=headers)
+    print("GET /", response.status_code, response.json())
+
+    # ... altri test per POST, PUT, PATCH, DELETE ...
+
+
+Prima di eseguire i test, il server Flask deve essere in esecuzione (ad esempio con python main.py o flask --app main run).

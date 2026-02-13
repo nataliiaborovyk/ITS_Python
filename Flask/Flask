@@ -1,0 +1,82 @@
+Flask
+
+	- parco divertimenti 
+		- soluzione
+	- rifiugio per animali 
+		- soluzione
+	- dispositivi eletronici
+		- soluzione
+	- flotta di veicoli
+		- soluzione
+	- smary home
+		- soluzione
+	- prenotazioni cliniche
+		- soluzioni
+
+
+
+get risorsa
+	- return jsonify(risorsa.info())
+
+get risorsa + id_specifico
+	- senza controllare se risorsa esiste
+		deffinisco (tiro fuori) oggetto con id dal dict generale
+			- se oggetto non esiste allora id era sbagliato
+			altrimenti
+			- restituisco jsonify(oggetto.info())
+
+get risorsa + id_specifico + nome_finto_funzione(pippo) + parametro
+	- senza controllare se risorsa esiste
+		deffinisco (tiro fuori) oggetto con id dal dict generale
+			- se oggetto non esiste allora id era sbagliato
+	- converto parametri in tipo giusto con try - except
+	- costruisco dict per ritornare con valori neccesari e calcoli fatti e lo ritorno
+
+
+post
+	- verifiche body giusto e creazione oggetto
+		- body = request.get_json()  -> creo dict da body
+		- isinstance(body, dict) ? 
+		- controllo campi generali presenti nel body
+		- controllo se il tipo è valido
+		- controllo di che tipo è e i campi aggiuntivi
+		- creo oggetto giusto
+	- aggiungo oggetto
+		- aggiungo in dict generale se prevede metodo (true/false)
+			altrimenti controllo se id è gia presente nel dict generale
+
+put
+
+	- verifiche body giusto e creazione oggetto
+		 - body = request.get_json()  -> converto in dict
+		 - isinstance(body, dict) -> controllo se valido json
+		 - controllo se campi obligatorie generali sono presenti
+		 - verifico se il tipo indicato è giusto
+		 - per ogni tipo controllo se campi specifici sono presenti 
+		 - creo oggetto di tipo giusto
+
+	- sostituisco o aggiungo oggetto
+		- tiro fuori vecchio oggetto da dict generale
+		- aggiorno il dict generale con nuovo oggetto
+		 - controllo se vecchio oggetto esiste gia
+		 	- se si restituisco nuovo oggetto con codice 200
+		 	- se no restituisco nuovo oggetto con codice 201
+
+patch
+	- tiro fuori oggetto dal dict generale con id
+		se non c'è -> errore
+	- data = request.get_json()
+	- isinstance(data, dict) ?
+	- verifico se nel data presente campo necessario e se il valore è di tipo giusto
+	- cambio valore di oggetto 
+	- restituisco oggetto 
+
+
+delete
+
+	- dipende come è implementato il metodo delete,
+		se restituisce bool ->
+
+		- assegno a una variabile risultato di oggetto.delete(...)
+			-se true -> 204
+			-se false non esisteva 

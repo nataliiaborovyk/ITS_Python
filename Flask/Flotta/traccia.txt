@@ -1,0 +1,376 @@
+Noleggio flotta di veicoli
+
+Classe Veichle (astratta)
+
+La classe Veichle rappresenta un veicolo generico gestito dal sistema. È una classe astratta e non può essere istanziata direttamente.
+
+Ogni veicolo ha:
+
+    un identificativo plate_id univoco di tipo stringa (targa del veicolo; es., "HA014AS"),
+
+    un modello model di tipo stringa (es. "Fiat Panda", "Ford Fiesta"),
+
+    il nome dell'attuale conducente/noleggiatore driver_name di tipo stringa (o None se libero),
+
+    un anno di immatricolazione del veicolo registration_year di tipo intero,
+
+    lo stato  status attuale del veicolo di tipo stringa, con valori possibili (a scelta, ma ad esempio):
+
+        "available" (disponibile nel parcheggio),
+
+        "rented" (attualmente noleggiato),
+
+        "maintenance" (in manutenzione meccanica),
+
+        "cleaning" (pulizia),
+
+        "retired" (dismesso o venduto).
+
+Metodi
+
+    vehicle_type(): metodo astratto
+    Deve essere implementato nelle sottoclassi per restituire il tipo di veicolo (es. "car", "van").
+
+    base_cleaning_time(): metodo astratto
+    Deve essere implementato nelle sottoclassi e restituire il tempo necessario per la pulizia ordinaria del veicolo espresso in minuti (int).
+
+    wear_level(): metodo astratto
+    Deve essere implementato nelle sottoclassi e restituire un indicatore (ad esempio un numero intero) che descriva il livello medio di usura per quel tipo di veicolo (da 1 a 5).
+
+    info(): 
+    Restituisce un dizionario con le informazioni principali del veicolo, ad esempio:
+
+    {
+        "id": ...,
+        "model": ...,
+        "driver_name": ...,
+        "veichle_type": ...,
+        "registration_year": ...,
+        "status": ...,
+        # più eventuali campi specifici delle sottoclassi
+    }
+
+    estimated_prep_time(factor: float = 1.0):
+    Calcola un tempo stimato per preparare il veicolo (pulizia + controlli) prima di un nuovo noleggio, sulla base di:
+
+        base_cleaning_time(),
+
+        wear_level(),
+
+        il fattore moltiplicativo factor (float, default 1.0).
+
+    La formula è base_cleaning_time() * factor + wear_level()*15 e restituisce il tempo di preparazione stimato in minuti (intero).
+
+Classe Car
+
+La classe Car rappresenta un'automobile standard e eredita da Vehicle.
+Attributi aggiuntivi
+
+    doors: un intero che indica il numero di portiere.
+
+    is_cabrioboleano che indica se il veicolo è di tipo cabrio o no.
+
+Metodi
+
+    vehicle_type(): restituisce la stringa "car".
+
+    base_cleaning_time(): restituisce il tempo base di pulizia del veicolo in minuti (es. 30).
+
+    wear_level(): restituisce un intero che rappresenta il livello di usura medio del veicolo. Il valore di usura di un'automobile generica sarà basso (es. 1 o 2).
+
+    info(): estende il metodo della superclasse includendo anche doors e is_cabrio.
+
+Classe Van
+
+La classe Van rappresenta un veicolo commerciale ed eredita da Vehicle.
+Attributi aggiuntivi
+
+    max_load_kg: un intero che indica la portata massima del veicolo in kg.
+
+    require_special_license: un booleano che indica se sia necessaria o meno una patente speciale per la conduzione del veicolo (es. la patente C).
+
+Metodi
+
+    vehicle_type(): restituisce la stringa "van".
+
+    base_cleaning_time(): restituisce il tempo base di pulizia del van in minuti (es. 60, poiché il van è una tipologia di veicolo onerosa da pulire).
+
+    wear_level(): restituisce un intero che rappresenta il livello di usura medio del veicolo. Il valore di usura di un van sarà alto poiché il van prevede un uso lavorativo intenso (es. 4 o 5).
+
+    info(): estende il metodo della superclasse includendo anche max_load_kg e require_special_license.
+
+Classe FleetManager
+
+La classe FleetManager rappresenta il gestore della flotta, cioè il database principale del sistema.
+Attributi
+
+    vehicles: dizionario che associa a ogni identificativo (plate_id) l’oggetto Vehicle corrispondente:
+
+    {
+        "HA014AS": <Fiat Panda ...>,
+        "CC216FG": <Peugeot Partner ...>,
+        ...
+    }
+
+Metodi
+
+    add(vechile: Vehicle) -> bool:
+    Aggiunge un veicolo al sistema. 
+    Restituisce True se l’inserimento va a buon fine, False se il veicolo esiste già.
+
+    get(plate_id: str) -> Vehicle:
+    Restituisce l’oggetto Vehicle corrispondente all’ID specificato oppure None se non esiste.
+
+    update(plate_id: str, new_vehicle: Vehicle) -> None:
+    Sostituisce completamente il veicolo con id plate_id con new_vehicle (per simulare un PUT).
+
+    patch_status(plate_id: str, new_status: str) -> None:
+    Aggiorna solo lo stato (status) del veicolo specificato con id plate_id (per simulare un PATCH).
+
+    delete(plate_id: str) -> bool:
+    Rimuove il veicolo dal dizionario.
+    Restituisce True se l’eliminazione è andata a buon fine, False se il veicolo non esiste.
+
+    list_all(): restituisce una lista di tutte le info() di veicoli presenti nel sistema
+
+Nel codice principale dovrà essere creato un gestore della flotta di veicoli (FleetManager) e dovranno essere inizializzati almeno due veicoli, uno di tipo Car e uno di tipo Van.
+Applicazione Flask
+
+Crea un’applicazione Flask che espone diverse route per gestire i veicoli presenti nel sistema. Le funzioni delle route devono restituire oggetti JSON.
+
+Dovrai usare tutti i metodi HTTP principali:
+
+    GET (lettura),
+
+    POST (creazione),
+
+    PUT (sostituzione totale),
+
+    PATCH (aggiornamento parziale),
+
+    DELETE (cancellazione).
+
+Route GET
+GET /
+
+Restituisce un JSON con:
+
+    una breve descrizione del servizio, ad esempio: "Welcome to Rent Service API";
+
+    link testuali che indicano le altre route attualmente disponibili, generati dinamicamente con url_for(), ad esempio:
+
+        /vehicles,
+
+        /vehicles/HA014AS,
+
+        /vehicles/HA014AS/prep-time/2.0
+
+Il JSON potrebbe avere una struttura tipo:
+
+{
+    "message": "Welcome to Rent Center API",
+    "links": {
+        "vehicles_list": /vehicles,
+        "vehicle_sample": /vehicles/HA014AS,
+        "estimate_sample": /devices/HA014AS/prep-time/2.0)
+    }
+}
+
+GET /vehicles
+
+Restituisce un JSON con l'elenco di tutti i veicoli presenti nel sistema.
+Ogni elemento può essere:
+
+    una stringa descrittiva,
+    ad esempio "HA014AS - Car - Fiat Panda (status: received)",
+
+    oppure
+
+    un dizionario con i campi principali (quelli restituiti da info()).
+
+La scelta è libera, ma deve essere coerente in tutto il programma.
+
+
+GET /vehicles/<plate_id>
+
+Restituisce un JSON con i dettagli del veicolo specificato.
+
+Se il veicolo non è presente nel sistema, restituire un JSON di errore (es. {"error": "Vehicle not found"}) con status code 404.
+
+
+GET /vehicles/<plate_id>/prep-time/<factor>
+
+Restituisce un JSON con il tempo stimato totale per la preparazione del veicolo, utilizzando il metodo estimated_prep_time(factor: float).
+
+Esempio di output:
+
+{
+  "id": "HA014AS",
+  "device_type": "car"
+  "factor": 2.0,
+  "estimated_total_minutes": 120
+}
+
+Se il veicolo non esiste, si ottiene un errore 404.
+
+Il parametro factor può essere letto dall'URL e convertito in float (con un default di 1.0 se vuoi renderlo opzionale).
+
+
+Route POST
+POST /vehicles
+
+Permette di aggiungere un nuovo veicolo al sistema.
+
+Il body della richiesta deve essere JSON, letto con request.get_json().
+Deve contenere almeno:
+
+    type: "car" o "van",
+
+    plate_id, model, driver_name, registration_year, status,
+
+    più i campi specifici del tipo (es. per smartphone: doors, is_cabrio).
+
+Esempio di JSON per uno smartphone:
+
+{
+  "type": "car",
+  "id": "XX999YY",
+  "model": "Fiat 500 Cabrio",
+  "customer_name": "Mario Rossi",
+  "purchase_year": 2022,
+  "status": "available",
+  "doors": 3
+  "is_cabrio": true
+}
+
+La funzione della route deve:
+
+    validare il JSON (campi obbligatori, tipo corretto),
+
+    creare l’istanza corretta (Car o Van),
+
+    aggiungerla al centro con fleet_manager.add(device),
+
+    restituire un JSON di conferma (es. con info()) e status code 201,
+    oppure un JSON di errore con status code 400 in caso di problemi (es. campi mancanti, tipo non riconosciuto).
+
+
+Route PUT
+PUT /vehicles/<plate_id>
+
+Sostituisce completamente le informazioni di un veicolo esistente con quelle fornite nel body JSON (stesso formato del POST /vehicles).
+
+Comportamento tipico:
+
+    Se il veicolo esiste → viene rimpiazzato (aggiornato completamente).
+
+    Se non esiste → puoi scegliere se:
+
+        creare un nuovo veicolo con quell’plate id, oppure
+
+        restituire un errore 404.
+
+Route PATCH
+PATCH /vehicles/<plate_id>/status
+
+Aggiorna solo lo stato (status) del veicolo specificato.
+
+Body JSON di esempio:
+
+{
+  "status": "rented"
+}
+
+La funzione deve:
+
+    verificare che il veicolo esista,
+
+    leggere il nuovo stato dal JSON,
+
+    chiamare fleet_manager.patch_status(device_id, new_status),
+
+    restituire il veicolo aggiornato (via info()) o un messaggio di conferma.
+
+In caso di veicolo inesistente → errore 404.
+
+
+Route DELETE
+DELETE /vehicles/<plate_id>
+
+Rimuove un veicolo dal sistema.
+
+Comportamento:
+
+    Se il veicolo esiste → viene eliminato e si restituisce un JSON di conferma (es. {"deleted": true, "id": "XX999YY"}).
+
+    Se non esiste → restituire un JSON di errore con status code 404.
+
+Struttura del progetto
+
+Il progetto può essere organizzato in questo modo:
+
+    main.py
+    Contiene:
+
+        le classi Vehicle, Car, Van, FleetManager,
+
+        l’istanza globale di FleetManager e i dispositivi di esempio,
+
+        l’applicazione Flask con tutte le route definite sopra.
+
+    test_api.py
+    Contiene i test che usano requests per chiamare la tua API.
+
+Test automatici con requests
+Scrivi un file di test che:
+
+    Imposta gli header per lavorare con JSON, ad esempio:
+
+    headers = {
+        "Content-type": "application/json",
+        "Accept": "application/json"
+    }
+
+    Esegue almeno le seguenti operazioni, usando requests:
+
+        GET / e stampa / verifica il contenuto della risposta;
+
+        GET /vehicles e controlla che la lista non sia vuota;
+
+        POST /vehicles per aggiungere un nuovo veicolo;
+
+        GET /vehicles/<plate_id> per verificare che sia stato creato;
+
+        PATCH /vehicles/<plate_id>/status per aggiornare lo stato;
+
+        PUT /vehicles/<plate_id> per sostituire le info del veicolo;
+
+        DELETE /vehicles/<plate_id> per eliminarlo;
+
+        GET /vehicles/<plate_id> per verificare che non esista più (status 404).
+
+    Come minimo, i test devono stampare le risposte.
+
+Esempio minimale di struttura (non il codice completo):
+
+ 
+
+import requests
+import json
+
+BASE_URL = "http://localhost:5000"
+
+if __name__ == "__main__":
+    headers = {
+        "Content-type": "application/json",
+        "Accept": "application/json"
+    }
+
+    # Esempio: test su GET /
+    response = requests.get(f"{BASE_URL}/", headers=headers)
+    print("GET /", response.status_code, response.json())
+
+    # ... altri test per POST, PUT, PATCH, DELETE ...
+
+
+Prima di eseguire i test, il server Flask deve essere in esecuzione (ad esempio con python main.py o flask --app main run).

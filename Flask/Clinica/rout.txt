@@ -1,0 +1,221 @@
+
+Applicazione Flask
+
+Crea un’applicazione Flask che espone diverse route per gestire le prenotazioni presenti nel sistema. Le funzioni delle route devono restituire oggetti JSON.
+
+Dovrai usare tutti i metodi HTTP principali:
+
+    GET (lettura)
+    POST (creazione)
+    PUT (sostituzione totale)
+    PATCH (aggiornamento parziale)
+    DELETE (cancellazione)
+
+Route GET
+GET /
+
+Restituisce un JSON con:
+
+    una breve descrizione del servizio, ad esempio: "Clinic Booking Hub API";
+    link testuali che indicano le altre route disponibili, generati dinamicamente con url_for(), ad esempio:
+        /bookings
+        /bookings/BK-101
+        /bookings/BK-101/wait/1.0
+
+Il JSON potrebbe avere una struttura tipo:
+
+{
+  "message": "Clinic Booking Hub API",
+  "links": {
+    "bookings_list": "/bookings",
+    "booking_sample": "/bookings/BK-101",
+    "estimate_sample": "/bookings/BK-101/wait/1.0"
+  }
+}
+
+GET /bookings
+
+Restituisce un JSON con l'elenco di tutte le prenotazioni presenti nel sistema.
+
+Ogni elemento può essere:
+
+    una stringa descrittiva, ad esempio: "BK-101 - visit - Mario Rossi (status: scheduled)"
+    oppure un dizionario con i campi principali (quelli restituiti da info()).
+
+La scelta è libera, ma deve essere coerente in tutto il programma.
+
+
+GET /bookings/<booking_id>
+
+Restituisce un JSON con i dettagli della prenotazione specificata.
+
+Se la prenotazione non è presente nel sistema, restituire un JSON di errore (es. {"error": "booking not found"}) con status code 404.
+
+
+GET /bookings/<booking_id>/wait/<factor>
+
+Restituisce un JSON con il tempo di attesa stimato prima dell’appuntamento, utilizzando estimated_wait(factor: float).
+
+Esempio di output:
+
+{
+  "booking_id": "BK-101",
+  "booking_type": "visit",
+  "factor": 1.0,
+  "estimated_wait_minutes": 55
+}
+
+Se la prenotazione non esiste, si ottiene un errore 404.
+
+Il parametro factor può essere letto dall’URL e convertito in float (con un default di 1.0 se vuoi renderlo opzionale).
+
+
+Route POST
+POST /bookings
+
+Permette di aggiungere una nuova prenotazione al sistema.
+
+Il body della richiesta deve essere JSON, letto con request.get_json().
+
+Deve contenere almeno:
+
+    type: "visit" o "exam"
+    booking_id, patient_name, doctor, department, date, time, status
+    più i campi specifici del tipo:
+        per visit: visit_reason, first_time
+        per exam: exam_type, requires_fasting
+
+Esempio di JSON per un esame diagnostico:
+
+{
+  "type": "exam",
+  "booking_id": "BK-3e67",
+  "patient_name": "Giulia Verdi",
+  "doctor": "Dr. Neri",
+  "department": "Radiologia",
+  "date": "2026-02-10",
+  "time": "09:15",
+  "status": "scheduled",
+  "exam_type": "RMN",
+  "requires_fasting": true
+}
+
+La funzione della route deve:
+
+    validare il JSON (campi obbligatori, tipo corretto),
+    creare l’istanza corretta (MedicalVisit o DiagnosticExam),
+    aggiungerla al centro con clinic_hub.add(booking),
+    restituire un JSON di conferma (es. con info()) e status code 201,
+
+oppure un JSON di errore con status code 400 in caso di problemi (es. campi mancanti, tipo non riconosciuto, formati errati).
+
+
+Route PUT
+PUT /bookings/<booking_id>
+
+Sostituisce completamente le informazioni di una prenotazione esistente con quelle fornite nel body JSON (stesso formato del POST /bookings).
+
+Comportamento tipico:
+
+    Se la prenotazione esiste → viene rimpiazzata (aggiornata completamente).
+    Se non esiste → puoi scegliere se:
+        creare una nuova prenotazione con quel booking_id, oppure
+        restituire un errore 404.
+
+Route PATCH
+PATCH /bookings/<booking_id>/status
+
+Aggiorna solo lo stato (status) della prenotazione specificata.
+
+Body JSON di esempio:
+
+{
+  "status": "checked_in"
+}
+
+La funzione deve:
+
+    verificare che la prenotazione esista,
+    leggere il nuovo stato dal JSON,
+    chiamare clinic_hub.patch_status(booking_id, new_status),
+    restituire la prenotazione aggiornata (via info()) o un messaggio di conferma.
+
+In caso di prenotazione inesistente → errore 404.
+
+
+Route DELETE
+DELETE /bookings/<booking_id>
+
+Rimuove una prenotazione dal sistema.
+
+Comportamento:
+
+    Se la prenotazione esiste → viene eliminata e si restituisce un JSON di conferma (es. {"deleted": true, "booking_id": "BK-34567"}).
+    Se non esiste → restituire un JSON di errore con status code 404.
+
+
+
+
+
+
+
+Struttura del progetto
+
+Il progetto può essere organizzato in questo modo:
+
+    main.py
+    Contiene:
+        le classi Booking, MedicalVisit, DiagnosticExam, ClinicHub,
+        l’istanza globale di ClinicHub e le prenotazioni di esempio,
+        l’applicazione Flask con tutte le route definite sopra.
+    test_api.py
+    Contiene i test che usano requests per chiamare la tua API.
+
+
+
+
+
+Test automatici con requests
+
+Scrivi un file di test che:
+
+    Imposta gli header per lavorare con JSON, ad esempio:
+
+    headers = {
+      "Content-type": "application/json",
+      "Accept": "application/json"
+    }
+
+    Esegue almeno le seguenti operazioni, usando requests:
+        GET / e stampa/verifica il contenuto della risposta;
+        GET /bookings e controlla che la lista non sia vuota;
+        POST /bookings per aggiungere una nuova prenotazione;
+        GET /bookings/<booking_id> per verificare che sia stata creata;
+        PATCH /bookings/<booking_id>/status per aggiornare lo stato;
+        PUT /bookings/<booking_id> per sostituire le info della prenotazione;
+        DELETE /bookings/<booking_id> per eliminarla;
+        GET /bookings/<booking_id> per verificare che non esista più (status 404).
+    Come minimo, i test devono stampare le risposte.
+
+
+
+
+Esempio minimale di struttura (non il codice completo):
+
+import requests
+import json
+
+BASE_URL = "http://localhost:5000"
+
+if __name__ == "__main__":
+    headers = {
+        "Content-type": "application/json",
+        "Accept": "application/json"
+    }
+
+    response = requests.get(f"{BASE_URL}/", headers=headers)
+    print("GET /", response.status_code, response.json())
+
+    # ... altri test per POST, PUT, PATCH, DELETE ...
+
+Prima di eseguire i test, il server Flask deve essere in esecuzione (ad esempio con python main.py o flask --app main run).

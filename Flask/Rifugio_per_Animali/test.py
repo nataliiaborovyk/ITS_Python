@@ -30,7 +30,7 @@ def _print_response(response: requests.Response):
     # response.json()            dati restituiti
 
 def test_get_info() -> str:
-    response = requests.get(
+    response: requests.Response = requests.get(
         url = f"{url_base}/",
         headers = headers
     )
